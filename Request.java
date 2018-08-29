@@ -1,7 +1,8 @@
-package http;
+package connections.module.http;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import sun.net.www.protocol.http.HttpURLConnection;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
@@ -9,14 +10,15 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Optional;
+
 //  curl 'https://jsonplaceholder.typicode.com/posts' -i -X POST -H 'Content-Type: application/json' -d '{"userId": "1", "id": "101", "title": "Test Example","body": "Example Bodyxx"}'
 public class Request {
 
-    private HttpsURLConnection conn;
+    private HttpURLConnection conn;
 
     public void create(String url) {
         try {
-            this.conn = (HttpsURLConnection) new URL(url).openConnection();
+            this.conn = (HttpURLConnection) new URL(url).openConnection();// OR HTTPS
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,6 +54,7 @@ public class Request {
             this.conn.setDoOutput(true);
             this.addHeader("Content-Type","application/json; charset=UTF-8");
             this.addHeader("Accept", "application/json");
+
         } catch (ProtocolException e) {
             e.printStackTrace();
         }
@@ -61,8 +64,9 @@ public class Request {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             StringWriter stringEmp = new StringWriter();
+
             objectMapper.writeValue(stringEmp, obj);
-            this.conn.getOutputStream().write(stringEmp.toString().getBytes());
+            this.conn.getOutputStream().write(stringEmp.toString().replace("\"", "\\\"").getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,4 +1,4 @@
-package http;
+package connections.module.http;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
