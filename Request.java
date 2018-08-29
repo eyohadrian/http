@@ -1,28 +1,26 @@
-package connections.module.http;
+package http;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Optional;
-
+//  curl 'https://jsonplaceholder.typicode.com/posts' -i -X POST -H 'Content-Type: application/json' -d '{"userId": "1", "id": "101", "title": "Test Example","body": "Example Bodyxx"}'
 public class Request {
 
     private HttpsURLConnection conn;
 
-   public void create(String url) {
-       try {
-           this.conn = (HttpsURLConnection) new URL(url).openConnection();
-       } catch (IOException e) {
-           e.printStackTrace();
-       }
-   }
+    public void create(String url) {
+        try {
+            this.conn = (HttpsURLConnection) new URL(url).openConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public Response send() {
         JsonNode jsonMap = null;
@@ -35,7 +33,7 @@ public class Request {
     }
 
     private JsonNode exec(JsonNode jsonNode) throws IOException {
-        InputStream is = conn.getInputStream();
+        InputStream is = this.conn.getInputStream();
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readTree(is);
     }
@@ -52,7 +50,8 @@ public class Request {
         try {
             this.conn.setRequestMethod(method);
             this.conn.setDoOutput(true);
-            this.addHeader("Content-Type", "application/json");
+            this.addHeader("Content-Type","application/json; charset=UTF-8");
+            this.addHeader("Accept", "application/json");
         } catch (ProtocolException e) {
             e.printStackTrace();
         }
@@ -63,6 +62,7 @@ public class Request {
             ObjectMapper objectMapper = new ObjectMapper();
             StringWriter stringEmp = new StringWriter();
             objectMapper.writeValue(stringEmp, obj);
+            this.conn.getOutputStream().write(stringEmp.toString().getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -71,5 +71,6 @@ public class Request {
     public void addHeader(String key, String value) {
         this.conn.setRequestProperty(key, value);
     }
+
 
 }
